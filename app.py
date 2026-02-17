@@ -74,7 +74,9 @@ if num_years > max_years_available:
     st.sidebar.caption(f"Capped to {max_years_available} years (data limit)")
 
 cola_rate = st.sidebar.number_input(
-    "COLA rate (%)", min_value=0.0, max_value=20.0, value=0.0, step=0.25
+    "COLA rate (%)", min_value=0.0, max_value=20.0, value=0.0, step=0.25,
+    help="Cost-of-Living Adjustment. A fixed annual raise applied to your income each year. "
+         "For example, 2% means your nominal income grows 2% per year. Set to 0% for a truly fixed income with no raises.",
 ) / 100.0
 
 st.sidebar.header("Reserve Strategy")
@@ -83,12 +85,21 @@ if "spending_target_w" not in st.session_state:
 real_spending_target = st.sidebar.number_input(
     "Real spending target ($)", min_value=1_000, max_value=10_000_000, step=1_000,
     key="spending_target_w",
+    help="How much you want to spend each year in today's dollars, keeping your buying power constant. "
+         "If you set this below your income, the surplus goes into a reserve fund to cover future shortfalls when inflation outpaces your income.",
 )
 
 reserve_spread = st.sidebar.number_input(
-    "Reserve return spread (%)", min_value=0.0, max_value=3.0, value=2.0, step=0.25
+    "Reserve return spread (%)", min_value=0.0, max_value=3.0, value=2.0, step=0.25,
+    help="The extra return your reserve fund earns above inflation each year. "
+         "For example, 2% means your reserves grow at the inflation rate + 2%. "
+         "Think of this as the real return on a conservative investment like bonds or CDs.",
 ) / 100.0
-if st.sidebar.button("Solve Max Sustainable Target"):
+if st.sidebar.button(
+    "Solve Max Sustainable Target",
+    help="Finds the highest real spending amount you can maintain for the entire period without running out of reserves. "
+         "Solves for both your selected period and the worst historical inflation period of the same length.",
+):
     st.session_state.solved_target = "pending"
 
 
@@ -236,7 +247,10 @@ if st.session_state.solved_target == "done":
         f"**Current period:** ${current_solved:,.0f} "
         f"({current_pct:.1f}% of income)"
     )
-    if st.sidebar.button("Use Current Period Target"):
+    if st.sidebar.button(
+        "Use Current Period Target",
+        help="Sets the real spending target to the solved amount for your currently selected start date and period.",
+    ):
         st.session_state.apply_target = int(current_solved)
         st.rerun()
 
@@ -251,7 +265,11 @@ if st.session_state.solved_target == "done":
         f"**Worst case:** ${worst_solved:,.0f} "
         f"({worst_pct:.1f}% of income){worst_label}"
     )
-    if st.sidebar.button("Use Worst Case Target"):
+    if st.sidebar.button(
+        "Use Worst Case Target",
+        help="Sets the real spending target to the solved amount AND switches to the worst historical inflation period. "
+             "This is the most conservative estimate — if your spending survives the worst case, it should survive any period.",
+    ):
         st.session_state.apply_target = int(worst_solved)
         if st.session_state.get("solved_worst_start") is not None:
             ws = st.session_state.solved_worst_start
