@@ -342,7 +342,7 @@ fig.update_layout(
     xaxis_title="Period",
     yaxis_title="Income ($)",
     yaxis_tickformat="$,.0f",
-    legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
+    legend=dict(orientation="h", yanchor="top", y=-0.15, xanchor="center", x=0.5),
     height=500,
 )
 st.plotly_chart(fig, use_container_width=True)
